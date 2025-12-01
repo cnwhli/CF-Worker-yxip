@@ -7,3 +7,5 @@ main = "_worker.js" # 若为 JS 则改为 src/index.js，按实际路径调整
 [[kv_namespaces]]
 binding = "IP_STORAGE"
 id = "df56fff40d30482a9d124c6f5fc7bde4"
+[vars]
+ADMIN_PASSWORD = "liwanxi521"
