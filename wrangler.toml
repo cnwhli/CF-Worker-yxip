@@ -3,7 +3,7 @@ name = "lnnxyxip"
 # 兼容日期（使用当前日期即可，格式 YYYY-MM-DD）
 compatibility_date = "2025-12-01"
 # 你的 Worker 入口文件路径（必须存在！）
-main = "cfip.js" # 若为 JS 则改为 src/index.js，按实际路径调整
+main = "_worker.js" # 若为 JS 则改为 src/index.js，按实际路径调整
 [[kv_namespaces]]
 binding = "IP_STORAGE"
 id = "df56fff40d30482a9d124c6f5fc7bde4"
