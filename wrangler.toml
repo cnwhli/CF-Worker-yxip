@@ -1,0 +1,3 @@
+[[kv_namespaces]]
+binding = "IP_STORAGE"
+id = "your_kv_namespace_id_here"
