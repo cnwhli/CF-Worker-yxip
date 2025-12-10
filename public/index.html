@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IP 国家筛选工具</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .filter-bar {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #country-filter {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      min-width: 200px;
+    }
+    .refresh-btn {
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .refresh-btn:hover {
+      background: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f8f9fa;
+    }
+    .empty-tip {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+    .update-time {
+      margin-bottom: 10px;
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>IP 国家筛选工具</h1>
+    
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+      <select id="country-filter">
+        <option value="all">所有国家</option>
+        <!-- 动态填充国家选项 -->
+      </select>
+      <button class="refresh-btn" id="refresh-btn">刷新IP列表</button>
+    </div>
+
+    <!-- 更新时间 -->
+    <div class="update-time" id="update-time">最后更新：--</div>
+
+    <!-- IP列表表格 -->
+    <table id="ip-table">
+      <thead>
+        <tr>
+          <th>IP地址</th>
+          <th>所属国家</th>
+          <th>延迟(ms)</th>
+        </tr>
+      </thead>
+      <tbody id="ip-table-body">
+        <tr class="empty-tip">
+          <td colspan="3">加载中...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // 核心变量
+    let allIps = []; // 原始IP列表
+    const countryFilter = document.getElementById('country-filter');
+    const ipTableBody = document.getElementById('ip-table-body');
+    const updateTimeEl = document.getElementById('update-time');
+    const refreshBtn = document.getElementById('refresh-btn');
+
+    /**
+     * 格式化时间戳
+     */
+    function formatTime(timestamp) {
+      if (!timestamp) return '--';
+      return new Date(timestamp).toLocaleString('zh-CN');
+    }
+
+    /**
+     * 加载IP列表
+     */
+    async function loadIpList() {
+      try {
+        // 清空表格
+        ipTableBody.innerHTML = '<tr class="empty-tip"><td colspan="3">加载中...</td></tr>';
+        
+        // 请求IP数据
+        const response = await fetch('/api/ips');
+        const res = await response.json();
+        
+        if (res.code !== 200) {
+          throw new Error(res.message || '获取数据失败');
+        }
+
+        allIps = res.data.ips;
+        // 更新最后更新时间
+        updateTimeEl.textContent = `最后更新：${formatTime(res.data.lastUpdated)}`;
+        
+        // 渲染表格和筛选下拉框
+        renderCountryFilter();
+        renderIpTable(allIps);
+      } catch (error) {
+        ipTableBody.innerHTML = `<tr class="empty-tip"><td colspan="3">加载失败：${error.message}</td></tr>`;
+        console.error('加载IP列表失败:', error);
+      }
+    }
+
+    /**
+     * 渲染国家筛选下拉框
+     */
+    function renderCountryFilter() {
+      // 去重获取所有国家
+      const countries = [...new Set(allIps.map(item => item.country))].sort();
+      
+      // 清空现有选项（保留"所有国家"）
+      countryFilter.innerHTML = '<option value="all">所有国家</option>';
+      
+      // 动态添加国家选项
+      countries.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country;
+        option.textContent = country;
+        countryFilter.appendChild(option);
+      });
+    }
+
+    /**
+     * 渲染IP表格
+     */
+    function renderIpTable(ips) {
+      if (ips.length === 0) {
+        ipTableBody.innerHTML = '<tr class="empty-tip"><td colspan="3">暂无数据</td></tr>';
+        return;
+      }
+
+      ipTableBody.innerHTML = ips.map(item => `
+        <tr data-country="${item.country}">
+          <td>${item.ip}</td>
+          <td>${item.country}</td>
+          <td>${item.delay}</td>
+        </tr>
+      `).join('');
+    }
+
+    /**
+     * 筛选IP（按国家）
+     */
+    function filterIpsByCountry() {
+      const selectedCountry = countryFilter.value;
+      let filteredIps = [...allIps];
+      
+      if (selectedCountry !== 'all') {
+        filteredIps = filteredIps.filter(item => item.country === selectedCountry);
+      }
+      
+      renderIpTable(filteredIps);
+    }
+
+    /**
+     * 手动刷新IP列表
+     */
+    async function refreshIpList() {
+      try {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = '刷新中...';
+        
+        await fetch('/api/collect-ips');
+        await loadIpList();
+        
+        alert('IP列表已刷新！');
+      } catch (error) {
+        alert('刷新失败：' + error.message);
+      } finally {
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = '刷新IP列表';
+      }
+    }
+
+    // 初始化事件监听
+    function initEvent() {
+      // 国家筛选变化
+      countryFilter.addEventListener('change', filterIpsByCountry);
+      // 刷新按钮点击
+      refreshBtn.addEventListener('click', refreshIpList);
+    }
+
+    // 页面加载时初始化
+    window.onload = () => {
+      initEvent();
+      loadIpList();
+    };
+  </script>
+</body>
+</html>
