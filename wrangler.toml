@@ -1,11 +1,11 @@
-name = "cf-worker-bestip-collector"
+name = "lnnxyxipn"
 main = "_workers.js"
 compatibility_date = "2023-10-01"
 compatibility_flags = ["streams_enable_constructors"]
 
 [[kv_namespaces]]
 binding = "IP_STORAGE"
-id = "your_kv_namespace_id_here"  # 替换为你的KV命名空间ID
+id = "eecfd1bee19e45c69360d558bbf029b2"  # 替换为你的KV命名空间ID
 preview_id = "your_preview_kv_namespace_id_here"  # 预览环境KV ID（可选）
 
 # 环境变量配置
