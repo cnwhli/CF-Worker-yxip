@@ -1,0 +1,11 @@
+name = "cf-ip-collector"
+main = "cfip.js"
+compatibility_date = "2023-10-01"
+
+[[kv_namespaces]]
+binding = "IP_STORAGE"
+id = "your_kv_namespace_id_here"  # 替换为你的KV命名空间ID
+
+# 可选：配置管理员密码（V2.5+版本）
+[vars]
+ADMIN_PASSWORD = "your_secure_password"  # 生产环境建议通过Cloudflare控制台设置
