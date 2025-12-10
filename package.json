@@ -1,14 +1,17 @@
 {
-  "name": "cf-ip-collector",
+  "name": "cf-worker-bestip-collector",
   "version": "2.5.0",
-  "description": "Cloudflare 优选IP收集器",
-  "main": "cfip.js",
+  "description": "Cloudflare 优选IP收集与测速工具",
+  "main": "_workers.js",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {},
+  "keywords": ["cloudflare", "worker", "ip-collector", "speed-test"],
+  "author": "",
+  "license": "MIT",
   "devDependencies": {
-    "wrangler": "^3.0.0"
+    "wrangler": "^3.15.0"
   }
 }
